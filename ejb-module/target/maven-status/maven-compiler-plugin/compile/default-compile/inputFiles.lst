@@ -1,7 +1,0 @@
-C:\Users\dsydow\OneDrive\Documents\projetoteste\bip-teste-integrado\ejb-module\src\main\java\com\example\ejb\exception\InsufficientBalanceException.java
-C:\Users\dsydow\OneDrive\Documents\projetoteste\bip-teste-integrado\ejb-module\src\main\java\com\example\ejb\exception\TransferConflictException.java
-C:\Users\dsydow\OneDrive\Documents\projetoteste\bip-teste-integrado\ejb-module\src\main\java\com\example\ejb\exception\TransferException.java
-C:\Users\dsydow\OneDrive\Documents\projetoteste\bip-teste-integrado\ejb-module\src\main\java\com\example\ejb\model\Beneficio.java
-C:\Users\dsydow\OneDrive\Documents\projetoteste\bip-teste-integrado\ejb-module\src\main\java\com\example\ejb\repository\BeneficioRepository.java
-C:\Users\dsydow\OneDrive\Documents\projetoteste\bip-teste-integrado\ejb-module\src\main\java\com\example\ejb\service\BeneficioEjbService.java
-C:\Users\dsydow\OneDrive\Documents\projetoteste\bip-teste-integrado\ejb-module\src\main\java\com\example\ejb\service\TransferExecutorPort.java
