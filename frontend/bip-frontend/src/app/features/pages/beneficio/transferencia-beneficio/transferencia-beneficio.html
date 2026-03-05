@@ -1,0 +1,105 @@
+<div class="transfer-wrapper">
+
+      <!-- Cabeçalho -->
+      <div class="transfer-header">
+        <div class="header-icon">
+          <mat-icon>swap_horiz</mat-icon>
+        </div>
+        <div class="header-text">
+          <h2>Transferência de Benefício</h2>
+          <p>Mova valor entre dois benefícios cadastrados</p>
+        </div>
+      </div>
+
+      <mat-divider />
+
+      <!-- Formulário -->
+      <form [formGroup]="form" (ngSubmit)="transferir()" novalidate class="transfer-form">
+
+        <!-- Linha: Origem e Destino lado a lado -->
+        <div class="form-row">
+
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>ID Conta Origem</mat-label>
+            <mat-icon matPrefix>arrow_upward</mat-icon>
+            <input matInput
+                   type="number"
+                   min="1"
+                   formControlName="fromId"
+                   placeholder="Ex: 1"
+                   (blur)="markTouched('fromId')">
+            <mat-error>{{ getError('fromId') }}</mat-error>
+          </mat-form-field>
+
+          <div class="arrow-separator">
+            <mat-icon>east</mat-icon>
+          </div>
+
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>ID Conta Destino</mat-label>
+            <mat-icon matPrefix>arrow_downward</mat-icon>
+            <input matInput
+                   type="number"
+                   min="1"
+                   formControlName="toId"
+                   placeholder="Ex: 2"
+                   (blur)="markTouched('toId')">
+            <mat-error>{{ getError('toId') }}</mat-error>
+          </mat-form-field>
+
+        </div>
+
+        <!-- Erro de contas iguais (nível de grupo) -->
+        @if (form.errors?.['contasIguais'] && form.get('toId')?.touched) {
+          <p class="group-error">
+            <mat-icon>warning</mat-icon>
+            Conta de origem e destino não podem ser iguais.
+          </p>
+        }
+
+        <!-- Valor -->
+        <mat-form-field appearance="outline" class="form-field full-width">
+          <mat-label>Valor a transferir</mat-label>
+          <mat-icon matPrefix>attach_money</mat-icon>
+          <input matInput
+                 type="number"
+                 min="0.01"
+                 step="0.01"
+                 formControlName="valor"
+                 placeholder="0,00"
+                 (blur)="markTouched('valor')">
+          <span matTextSuffix>BRL</span>
+          <mat-hint>Valor mínimo: R$ 0,01</mat-hint>
+          <mat-error>{{ getError('valor') }}</mat-error>
+        </mat-form-field>
+
+        <!-- Rodapé: botões -->
+        <div class="form-actions">
+
+          <button mat-stroked-button
+                  type="button"
+                  [disabled]="loading()"
+                  (click)="resetar()"
+                  matTooltip="Limpar formulário">
+            <mat-icon>restart_alt</mat-icon>
+            Limpar
+          </button>
+
+          <button mat-flat-button
+                  color="primary"
+                  type="submit"
+                  [disabled]="form.invalid || loading()">
+            @if (loading()) {
+              <mat-spinner diameter="20" />
+            } @else {
+              <ng-container>
+                <mat-icon>send</mat-icon>
+                Transferir
+              </ng-container>
+            }
+          </button>
+
+        </div>
+
+      </form>
+    </div>

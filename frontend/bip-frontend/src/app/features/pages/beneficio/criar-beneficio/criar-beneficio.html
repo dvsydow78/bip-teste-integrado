@@ -1,0 +1,74 @@
+<div class="form-wrapper">
+
+    <!-- Cabeçalho -->
+    <div class="form-header">
+        <div class="header-icon">
+            <mat-icon>add_card</mat-icon>
+        </div>
+        <div class="header-text">
+            <h2>Novo Benefício</h2>
+            <p>Preencha os dados para cadastrar um benefício</p>
+        </div>
+    </div>
+
+    <mat-divider />
+
+    <!-- Formulário -->
+    <form [formGroup]="form" (ngSubmit)="salvar()" novalidate class="form-body">
+
+        <!-- Nome -->
+        <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Nome</mat-label>
+            <mat-icon matPrefix>label</mat-icon>
+            <input matInput formControlName="nome" placeholder="Ex: Vale Refeição" maxlength="100"
+                (blur)="markTouched('nome')">
+            <mat-hint align="end">{{ form.get('nome')?.value?.length || 0 }}/100</mat-hint>
+            <mat-error>{{ getError('nome') }}</mat-error>
+        </mat-form-field>
+
+        <!-- Descrição -->
+        <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Descrição</mat-label>
+            <mat-icon matPrefix>notes</mat-icon>
+            <textarea matInput formControlName="descricao" placeholder="Descreva o benefício (opcional)" maxlength="255"
+                rows="3" (blur)="markTouched('descricao')">
+          </textarea>
+            <mat-hint align="end">{{ form.get('descricao')?.value?.length || 0 }}/255</mat-hint>
+            <mat-error>{{ getError('descricao') }}</mat-error>
+        </mat-form-field>
+
+        <!-- Valor -->
+        <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Valor</mat-label>
+            <mat-icon matPrefix>attach_money</mat-icon>
+            <input matInput type="number" min="0.01" step="0.01" formControlName="valor" placeholder="0,00"
+                (blur)="markTouched('valor')">
+            <span matTextSuffix>BRL</span>
+            <mat-hint>Valor mínimo: R$ 0,01</mat-hint>
+            <mat-error>{{ getError('valor') }}</mat-error>
+        </mat-form-field>
+
+        <!-- Ações -->
+        <div class="form-actions">
+
+            <button mat-stroked-button type="button" [disabled]="loading()" (click)="resetar()"
+                matTooltip="Limpar formulário">
+                <mat-icon>restart_alt</mat-icon>
+                Limpar
+            </button>
+
+            <button mat-flat-button color="primary" type="submit" [disabled]="form.invalid || loading()">
+                @if (loading()) {
+                <mat-spinner diameter="20" />
+                } @else {
+                <ng-container>
+                    <mat-icon>save</mat-icon>
+                    Salvar
+                </ng-container>
+                }
+            </button>
+
+        </div>
+
+    </form>
+</div>

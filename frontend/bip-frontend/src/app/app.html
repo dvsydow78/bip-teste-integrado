@@ -1,0 +1,78 @@
+
+    <mat-sidenav-container class="app-container">
+
+      <!-- Sidenav -->
+      <mat-sidenav
+        class="app-sidenav"
+        mode="side"
+        [opened]="sidenavOpen()">
+
+        <!-- Logo / título -->
+        <div class="sidenav-header">
+          <div class="sidenav-logo">
+            <mat-icon>account_balance</mat-icon>
+          </div>
+          <div class="sidenav-brand">
+            <span class="brand-name">BIP Sistema</span>
+            <span class="brand-sub">Gestão de Benefícios</span>
+          </div>
+        </div>
+
+        <mat-divider />
+
+        <!-- Navegação -->
+        <mat-nav-list class="nav-list">
+          @for (item of navItems; track item.route) {
+            <a mat-list-item
+               [routerLink]="item.route"
+               routerLinkActive="nav-item-active"
+               [routerLinkActiveOptions]="{ exact: true }"
+               class="nav-item"
+               [matTooltip]="item.label"
+               matTooltipPosition="right">
+              <mat-icon matListItemIcon>{{ item.icon }}</mat-icon>
+              <span matListItemTitle>{{ item.label }}</span>
+            </a>
+          }
+        </mat-nav-list>
+
+        <!-- Rodapé da sidenav -->
+        <div class="sidenav-footer">
+          <mat-divider />
+          <span class="version-label">v1.0.0</span>
+        </div>
+
+      </mat-sidenav>
+
+      <!-- Conteúdo principal -->
+      <mat-sidenav-content class="app-content">
+
+        <!-- Toolbar -->
+        <mat-toolbar class="app-toolbar">
+          <button mat-icon-button
+                  (click)="toggleSidenav()"
+                  matTooltip="Recolher menu"
+                  aria-label="Alternar menu lateral">
+            <mat-icon>menu</mat-icon>
+          </button>
+
+          <span class="toolbar-title">{{ paginaAtual() }}</span>
+
+          <span class="toolbar-spacer"></span>
+
+          <!-- <button mat-icon-button
+                  matTooltip="Recarregar página"
+                  (click)="recarregar()">
+            <mat-icon>refresh</mat-icon>
+          </button> -->
+        </mat-toolbar>
+
+        <!-- Conteúdo da rota -->
+        <div class="page-content">
+          <router-outlet />
+        </div>
+
+      </mat-sidenav-content>
+
+    </mat-sidenav-container>
+ 

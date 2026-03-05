@@ -1,0 +1,130 @@
+.transfer-wrapper {
+      max-width: 640px;
+      margin: 32px auto;
+      padding: 32px;
+      border-radius: 12px;
+      border: 1px solid var(--mat-sys-outline-variant, #e0e0e0);
+      background: var(--mat-sys-surface, #fff);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    }
+
+    /* Cabeçalho */
+    .transfer-header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .header-icon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: var(--mat-sys-primary-container, #e8eaf6);
+      color: var(--mat-sys-on-primary-container, #3949ab);
+      flex-shrink: 0;
+    }
+
+    .header-icon mat-icon {
+      font-size: 24px;
+      width: 24px;
+      height: 24px;
+    }
+
+    .header-text h2 {
+      margin: 0 0 4px;
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: var(--mat-sys-on-surface, #1c1b1f);
+    }
+
+    .header-text p {
+      margin: 0;
+      font-size: 0.875rem;
+      color: var(--mat-sys-on-surface-variant, #49454f);
+    }
+
+    /* Formulário */
+    .transfer-form {
+      margin-top: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .form-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+    }
+
+    .form-field {
+      flex: 1;
+    }
+
+    .full-width {
+      width: 100%;
+    }
+
+    .arrow-separator {
+      display: flex;
+      align-items: center;
+      padding-top: 20px;
+      color: var(--mat-sys-on-surface-variant, #49454f);
+      flex-shrink: 0;
+    }
+
+    /* Erro de grupo */
+    .group-error {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin: -4px 0 4px;
+      font-size: 0.75rem;
+      color: var(--mat-sys-error, #b00020);
+    }
+
+    .group-error mat-icon {
+      font-size: 16px;
+      width: 16px;
+      height: 16px;
+    }
+
+    /* Ações */
+    .form-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+      margin-top: 8px;
+    }
+
+    .form-actions button {
+      min-width: 120px;
+    }
+
+    /* Responsivo */
+    @media (max-width: 480px) {
+      .transfer-wrapper {
+        margin: 16px;
+        padding: 20px;
+      }
+
+      .form-row {
+        flex-direction: column;
+      }
+
+      .arrow-separator {
+        display: none;
+      }
+
+      .form-actions {
+        flex-direction: column-reverse;
+      }
+
+      .form-actions button {
+        width: 100%;
+      }
+    }

@@ -1,0 +1,7 @@
+com\example\ejb\service\BeneficioEjbService.class
+com\example\ejb\repository\BeneficioRepository.class
+com\example\ejb\service\TransferExecutorPort.class
+com\example\ejb\exception\InsufficientBalanceException.class
+com\example\ejb\exception\TransferConflictException.class
+com\example\ejb\exception\TransferException.class
+com\example\ejb\model\Beneficio.class

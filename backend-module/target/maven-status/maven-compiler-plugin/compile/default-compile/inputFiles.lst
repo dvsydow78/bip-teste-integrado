@@ -1,0 +1,12 @@
+C:\Users\dsydow\OneDrive\Documents\projetoteste\bip-teste-integrado\backend-module\src\main\java\com\example\backend\BackendApplication.java
+C:\Users\dsydow\OneDrive\Documents\projetoteste\bip-teste-integrado\backend-module\src\main\java\com\example\backend\config\EjbServiceConfig.java
+C:\Users\dsydow\OneDrive\Documents\projetoteste\bip-teste-integrado\backend-module\src\main\java\com\example\backend\config\OpenApiConfig.java
+C:\Users\dsydow\OneDrive\Documents\projetoteste\bip-teste-integrado\backend-module\src\main\java\com\example\backend\config\WebMvcConfig.java
+C:\Users\dsydow\OneDrive\Documents\projetoteste\bip-teste-integrado\backend-module\src\main\java\com\example\backend\controller\BeneficioController.java
+C:\Users\dsydow\OneDrive\Documents\projetoteste\bip-teste-integrado\backend-module\src\main\java\com\example\backend\dto\ApiError.java
+C:\Users\dsydow\OneDrive\Documents\projetoteste\bip-teste-integrado\backend-module\src\main\java\com\example\backend\dto\BeneficioRequest.java
+C:\Users\dsydow\OneDrive\Documents\projetoteste\bip-teste-integrado\backend-module\src\main\java\com\example\backend\dto\BeneficioResponse.java
+C:\Users\dsydow\OneDrive\Documents\projetoteste\bip-teste-integrado\backend-module\src\main\java\com\example\backend\dto\TransferenciaRequest.java
+C:\Users\dsydow\OneDrive\Documents\projetoteste\bip-teste-integrado\backend-module\src\main\java\com\example\backend\exception\BeneficioNotFoundException.java
+C:\Users\dsydow\OneDrive\Documents\projetoteste\bip-teste-integrado\backend-module\src\main\java\com\example\backend\exception\GlobalExceptionHandler.java
+C:\Users\dsydow\OneDrive\Documents\projetoteste\bip-teste-integrado\backend-module\src\main\java\com\example\backend\Teste.java

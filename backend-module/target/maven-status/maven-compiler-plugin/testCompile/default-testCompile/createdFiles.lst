@@ -1,0 +1,10 @@
+com\example\backend\BeneficioControllerTest.class
+com\example\backend\BeneficioControllerTest$BuscarPorId.class
+com\example\backend\BeneficioControllerTest$Atualizar.class
+com\example\backend\BeneficioControllerTest$Criar.class
+com\example\backend\BeneficioControllerTest$ListarAtivos.class
+com\example\backend\TransferenciaConcorrenteTest.class
+com\example\backend\BeneficioControllerTest$ContentType.class
+com\example\backend\BeneficioControllerTest$Desativar.class
+com\example\backend\BeneficioControllerTest$ListarTodos.class
+com\example\backend\BeneficioControllerTest$Transferir.class
