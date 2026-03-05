@@ -30,7 +30,7 @@ import { BeneficioService } from '../../../../core/services/beneficio.service';
   templateUrl: './transferencia-beneficio.html',
   styleUrl: './transferencia-beneficio.scss',
 })
-export class TransferenciaComponent {
+export class TransferenciaBeneficioComponent {
 
   private fb      = inject(FormBuilder);
   private service = inject(BeneficioService);
