@@ -1,0 +1,240 @@
+package com.example.backend;
+
+import com.example.backend.dto.BeneficioRequest;
+import com.example.backend.dto.TransferenciaRequest;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jayway.jsonpath.JsonPath;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.math.BigDecimal;
+
+import static org.hamcrest.Matchers.containsString;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
+@SpringBootTest
+@AutoConfigureMockMvc
+@Transactional
+@ActiveProfiles("test")
+class BeneficioControllerTest {
+
+    @Autowired MockMvc mvc;
+    @Autowired ObjectMapper mapper;
+
+    private long id1;
+    private long id2;
+
+    @BeforeEach
+    void setUp() throws Exception {
+        var r1 = new BeneficioRequest("Seed1","Desc1", new BigDecimal("100.00"));
+        var r2 = new BeneficioRequest("Seed2","Desc2", new BigDecimal("200.00"));
+
+        var resp1 = mvc.perform(post("/api/v1/beneficios")
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .content(mapper.writeValueAsString(r1)))
+                .andExpect(status().isCreated())
+                .andReturn();
+        id1 = ((Number) JsonPath.read(resp1.getResponse().getContentAsString(), "$.id")).longValue();
+
+        var resp2 = mvc.perform(post("/api/v1/beneficios")
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .content(mapper.writeValueAsString(r2)))
+                .andExpect(status().isCreated())
+                .andReturn();
+        id2 = ((Number) JsonPath.read(resp2.getResponse().getContentAsString(), "$.id")).longValue();
+    }
+
+    @Test
+    void deveListarBeneficios() throws Exception {
+        mvc.perform(get("/api/v1/beneficios"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$[?(@.id == " + id1 + ")]").exists())
+        .andExpect(jsonPath("$[?(@.id == " + id2 + ")]").exists())
+        .andExpect(jsonPath("$.length()").isNotEmpty());
+    }
+
+    @Test
+    void deveBuscarBeneficioPorId() throws Exception {
+        mvc.perform(get("/api/v1/beneficios/" + id1))
+           .andExpect(status().isOk())
+           .andExpect(jsonPath("$.id").value(id1));
+    }
+
+    @Test
+    void deveBuscarBeneficioPorIdInexistente() throws Exception {
+        mvc.perform(get("/api/v1/beneficios/10000"))
+           .andExpect(status().isNotFound());
+    }    
+
+    @Test
+    void deveCriarBeneficio() throws Exception {
+        var req = new BeneficioRequest("Novo", "Desc", new BigDecimal("250.00"));
+        mvc.perform(post("/api/v1/beneficios")
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .content(mapper.writeValueAsString(req)))
+           .andExpect(status().isCreated())
+           .andExpect(jsonPath("$.nome").value("Novo"));
+    }
+
+    @Test
+    void deveEditarBeneficio() throws Exception {
+        var upd = new BeneficioRequest("Alterado", "Nova desc", new BigDecimal("150.00"));
+        mvc.perform(put("/api/v1/beneficios/" + id1)
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .content(mapper.writeValueAsString(upd)))
+           .andExpect(status().isOk())
+           .andExpect(jsonPath("$.nome").value("Alterado"))
+           .andExpect(jsonPath("$.valor").value(150.00));
+    }
+
+    @Test
+    void deveExcluirBeneficio() throws Exception {
+        mvc.perform(delete("/api/v1/beneficios/" + id1))
+           .andExpect(status().isNoContent());
+
+           mvc.perform(get("/api/v1/beneficios/" + id1)) 
+            .andExpect(status().isOk()) 
+            .andExpect(jsonPath("$.ativo")
+            .value(false));
+    }
+
+    @Test
+    void deveExcluirNaoExisteRetorna400() throws Exception {
+        mvc.perform(delete("/api/v1/beneficios/9999"))
+           .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void deveRetornar422QuandoValorInvalido() throws Exception {
+        var req = new BeneficioRequest("X", null, new BigDecimal("-1"));
+        mvc.perform(post("/api/v1/beneficios")
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .content(mapper.writeValueAsString(req)))
+           .andExpect(status().isUnprocessableEntity());
+    }
+
+    @Test
+    void deveRealizarTransferencia() throws Exception {
+        var req = new TransferenciaRequest(id1, id2, new BigDecimal("50.00"));
+        mvc.perform(post("/api/v1/beneficios/transferencia")
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .content(mapper.writeValueAsString(req)))
+           .andExpect(status().isOk());
+    }
+
+    @Test
+    void deveTransferirOrigemNaoExiste() throws Exception {
+        var req = new TransferenciaRequest(id1 + 999, id2, new BigDecimal("10.00"));
+        mvc.perform(post("/api/v1/beneficios/transferencia")
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .content(mapper.writeValueAsString(req)))
+           .andExpect(status().isBadRequest())
+           .andExpect(jsonPath("$.erro", containsString("origem")));
+    }
+
+    @Test
+    void deveTransferirDestinoNaoExiste() throws Exception {
+        var req = new TransferenciaRequest(id1, id2 + 999, new BigDecimal("10.00"));
+        mvc.perform(post("/api/v1/beneficios/transferencia")
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .content(mapper.writeValueAsString(req)))
+           .andExpect(status().isBadRequest())
+           .andExpect(jsonPath("$.erro", containsString("destino")));
+    }
+
+    @Test
+    void deveTransferirValorNulo() throws Exception {
+        var req = new TransferenciaRequest(id1, id2, null);
+        mvc.perform(post("/api/v1/beneficios/transferencia")
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .content(mapper.writeValueAsString(req)))
+           .andExpect(status().isUnprocessableEntity());
+    }
+
+    @Test
+    void deveRetornar422QuandoSaldoInsuficiente() throws Exception {
+        var req = new TransferenciaRequest(id1, id2, new BigDecimal("9999.00"));
+        mvc.perform(post("/api/v1/beneficios/transferencia")
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .content(mapper.writeValueAsString(req)))
+           .andExpect(status().isUnprocessableEntity())
+           .andExpect(jsonPath("$.erro", containsString("Saldo insuficiente")));
+    }
+
+    @Test
+    void deveRetornar204QuandoContaOrigemInativa() throws Exception {
+        mvc.perform(delete("/api/v1/beneficios/" + id1))
+        .andExpect(status().isNoContent());
+
+        // Confirma que id1 não aparece na listagem de ativos
+        mvc.perform(get("/api/v1/beneficios/ativos"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$[?(@.id == " + id1 + ")]").doesNotExist())
+        .andExpect(jsonPath("$[?(@.id == " + id2 + ")]").exists());
+
+        var req = new TransferenciaRequest(id1, id2, new BigDecimal("50.00"));
+        mvc.perform(post("/api/v1/beneficios/transferencia")
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .content(mapper.writeValueAsString(req)))
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.erro", containsString("Conta de origem inativa")));
+
+    }
+
+    @Test
+    void deveRetornar204QuandoContaDestinoInativa() throws Exception {
+        mvc.perform(delete("/api/v1/beneficios/" + id2))
+        .andExpect(status().isNoContent());
+
+        // Confirma que id2 não aparece na listagem de ativos
+        mvc.perform(get("/api/v1/beneficios/ativos"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$[?(@.id == " + id2 + ")]").doesNotExist())
+        .andExpect(jsonPath("$[?(@.id == " + id1 + ")]").exists());
+
+        var req = new TransferenciaRequest(id1, id2, new BigDecimal("50.00"));
+        mvc.perform(post("/api/v1/beneficios/transferencia")
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .content(mapper.writeValueAsString(req)))
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.erro", containsString("Conta de destino inativa")));
+    }
+
+
+    // @Test
+    // void deveRetornar422QuandoContaOrigemInativa() throws Exception {
+    //     // Desativa a conta origem via DELETE (soft-delete)
+    //     mvc.perform(delete("/api/v1/beneficios/" + id1))
+    //     .andExpect(status().isNoContent());
+
+    //     var req = new TransferenciaRequest(id1, id2, new BigDecimal("50.00"));
+    //     mvc.perform(post("/api/v1/beneficios/transferencia")
+    //             .contentType(MediaType.APPLICATION_JSON_VALUE)
+    //             .content(mapper.writeValueAsString(req)))
+    //     .andExpect(status().isUnprocessableEntity())
+    //     .andExpect(jsonPath("$.erro", containsString("Conta de origem inativa")));
+    // }
+
+    // @Test
+    // void deveRetornar422QuandoContaDestinoInativa() throws Exception {
+    //     // Desativa a conta destino via DELETE (soft-delete)
+    //     mvc.perform(delete("/api/v1/beneficios/" + id2))
+    //     .andExpect(status().isNoContent());
+
+    //     var req = new TransferenciaRequest(id1, id2, new BigDecimal("50.00"));
+    //     mvc.perform(post("/api/v1/beneficios/transferencia")
+    //             .contentType(MediaType.APPLICATION_JSON_VALUE)
+    //             .content(mapper.writeValueAsString(req)))
+    //     .andExpect(status().isUnprocessableEntity())
+    //     .andExpect(jsonPath("$.erro", containsString("Conta de destino inativa")));
+    // }
+    
+}

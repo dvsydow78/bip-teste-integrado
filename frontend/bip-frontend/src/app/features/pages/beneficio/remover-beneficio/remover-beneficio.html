@@ -1,0 +1,123 @@
+<div class="form-wrapper">
+
+      <!-- Loading inicial -->
+      @if (loadingDados()) {
+        <div class="state-container">
+          <mat-spinner diameter="48" />
+          <p>Carregando benefício...</p>
+        </div>
+      }
+
+      <!-- Erro ao carregar -->
+      @if (!loadingDados() && erroDados()) {
+        <div class="state-container state-error">
+          <mat-icon>cloud_off</mat-icon>
+          <p>{{ erroDados() }}</p>
+          <div class="state-actions">
+            <button mat-stroked-button (click)="carregarBeneficio()">
+              <mat-icon>refresh</mat-icon>
+              Tentar novamente
+            </button>
+            <button mat-stroked-button routerLink="/lista">
+              <mat-icon>arrow_back</mat-icon>
+              Voltar
+            </button>
+          </div>
+        </div>
+      }
+
+      <!-- Confirmação -->
+      @if (!loadingDados() && !erroDados() && beneficio()) {
+
+        <!-- Cabeçalho -->
+        <div class="form-header">
+          <div class="header-left">
+            <button mat-icon-button
+                    routerLink="/lista"
+                    matTooltip="Voltar para lista">
+              <mat-icon>arrow_back</mat-icon>
+            </button>
+            <div class="header-icon header-icon-danger">
+              <mat-icon>delete</mat-icon>
+            </div>
+            <div class="header-text">
+              <h2>Remover Benefício</h2>
+              <p>ID #{{ id }}</p>
+            </div>
+          </div>
+        </div>
+
+        <mat-divider />
+
+        <!-- Aviso -->
+        <div class="warning-box">
+          <mat-icon>warning_amber</mat-icon>
+          <div class="warning-text">
+            <strong>Atenção: esta ação não pode ser desfeita.</strong>
+            <span>O benefício será desativado permanentemente.</span>
+          </div>
+        </div>
+
+        <!-- Dados do benefício -->
+        <div class="beneficio-card">
+          <div class="beneficio-row">
+            <span class="beneficio-label">Nome</span>
+            <span class="beneficio-valor">{{ beneficio()!.nome }}</span>
+          </div>
+
+          <mat-divider />
+
+          <div class="beneficio-row">
+            <span class="beneficio-label">Descrição</span>
+            <span class="beneficio-valor secondary">{{ beneficio()!.descricao || '—' }}</span>
+          </div>
+
+          <mat-divider />
+
+          <div class="beneficio-row">
+            <span class="beneficio-label">Valor</span>
+            <span class="beneficio-valor">{{ beneficio()!.valor | currency:'BRL' }}</span>
+          </div>
+
+          <mat-divider />
+
+          <div class="beneficio-row">
+            <span class="beneficio-label">Status atual</span>
+            <mat-chip [class]="beneficio()!.ativo ? 'chip-ativo' : 'chip-inativo'">
+              <mat-icon matChipAvatar>
+                {{ beneficio()!.ativo ? 'check_circle' : 'cancel' }}
+              </mat-icon>
+              {{ beneficio()!.ativo ? 'Ativo' : 'Inativo' }}
+            </mat-chip>
+          </div>
+        </div>
+
+        <!-- Ações -->
+        <div class="form-actions">
+          <button mat-stroked-button
+                  type="button"
+                  routerLink="/lista"
+                  [disabled]="loadingRemover()">
+            <mat-icon>close</mat-icon>
+            Cancelar
+          </button>
+
+          <button mat-flat-button
+                  color="warn"
+                  type="button"
+                  [disabled]="loadingRemover()"
+                  (click)="confirmarRemocao()">
+            @if (loadingRemover()) {
+              <mat-spinner diameter="20" />
+            } @else {
+              <ng-container>
+                <mat-icon>delete</mat-icon>
+                Confirmar remoção
+              </ng-container>
+            }
+          </button>
+        </div>
+
+      }
+
+    </div>

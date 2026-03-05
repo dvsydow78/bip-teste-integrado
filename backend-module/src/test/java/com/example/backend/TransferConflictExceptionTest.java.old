@@ -1,0 +1,56 @@
+package com.example.backend;
+
+import com.example.ejb.exception.TransferConflictException;
+import com.example.ejb.repository.BeneficioRepository;
+import com.example.ejb.service.BeneficioEjbService;
+import jakarta.persistence.OptimisticLockException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.context.ActiveProfiles;
+
+import java.math.BigDecimal;
+import java.util.Optional;
+
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
+
+@ExtendWith(MockitoExtension.class)
+@ActiveProfiles("test")
+class TransferConflictExceptionTest {
+
+    @Mock
+    private BeneficioRepository repository;
+
+    @InjectMocks
+    private BeneficioEjbService ejbService;
+
+    @BeforeEach
+    void setup() {
+        // findByIdForUpdate sempre retorna benefícios válidos e ativos
+        var from = new com.example.ejb.model.Beneficio("Conta A", "desc", new BigDecimal("1000.00"));
+        var to   = new com.example.ejb.model.Beneficio("Conta B", "desc", new BigDecimal("500.00"));
+        from.setAtivo(true);
+        to.setAtivo(true);
+
+        when(repository.findByIdForUpdate(1L)).thenReturn(Optional.of(from));
+        when(repository.findByIdForUpdate(2L)).thenReturn(Optional.of(to));
+
+        // save sempre lança OptimisticLockException — simula conflito de versão a cada tentativa
+        when(repository.save(any())).thenThrow(new OptimisticLockException("conflito simulado"));
+    }
+
+    @Test
+    void deveLancarTransferConflictExceptionAposMaxRetries() {
+        assertThatThrownBy(() -> ejbService.transfer(1L, 2L, new BigDecimal("100.00")))
+            .isInstanceOf(TransferConflictException.class)
+            .hasMessageContaining("3 tentativas");
+
+        // Confirma que tentou exatamente 3 vezes (MAX_TRANSFER_RETRIES)
+        verify(repository, times(3)).save(any());
+    }
+}

@@ -1,0 +1,7 @@
+{
+  "java.project.sourcePaths": [
+    "ejb-module/src/main/java"
+  ],
+  "java.configuration.updateBuildConfiguration": "interactive",
+  "java.compile.nullAnalysis.mode": "automatic"
+}
