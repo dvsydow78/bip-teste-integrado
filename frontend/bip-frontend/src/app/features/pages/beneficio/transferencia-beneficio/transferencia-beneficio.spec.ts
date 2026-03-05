@@ -1,17 +1,17 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { TransferenciaBeneficio } from './transferencia-beneficio';
+import { TransferenciaBeneficioComponent } from './transferencia-beneficio';
 
-describe('TransferenciaBeneficio', () => {
-  let component: TransferenciaBeneficio;
-  let fixture: ComponentFixture<TransferenciaBeneficio>;
+describe('TransferenciaBeneficioComponent', () => {
+  let component: TransferenciaBeneficioComponent;
+  let fixture: ComponentFixture<TransferenciaBeneficioComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [TransferenciaBeneficio],
+      imports: [TransferenciaBeneficioComponent],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(TransferenciaBeneficio);
+    fixture = TestBed.createComponent(TransferenciaBeneficioComponent);
     component = fixture.componentInstance;
     await fixture.whenStable();
   });

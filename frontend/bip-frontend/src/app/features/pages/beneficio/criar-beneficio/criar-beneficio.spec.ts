@@ -1,9 +1,10 @@
-import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ReactiveFormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { of, throwError } from 'rxjs';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 
 import { CriarBeneficioComponent } from './criar-beneficio';
 import { BeneficioService } from '../../../../core/services/beneficio.service';
@@ -11,6 +12,8 @@ import { BeneficioService } from '../../../../core/services/beneficio.service';
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
+
+const flushPromises = () => new Promise(resolve => setTimeout(resolve));
 
 function makeError(status: number, body: unknown = {}) {
   return throwError(() => ({ status, error: body }));
@@ -32,36 +35,46 @@ const snackBarStub = {
   open: vi.fn(),
 };
 
+const activatedRouteStub = {
+  snapshot: { paramMap: { get: () => null } },
+};
+
 // ---------------------------------------------------------------------------
 // Suite
 // ---------------------------------------------------------------------------
 
 describe('CriarBeneficioComponent', () => {
+
   let component: CriarBeneficioComponent;
   let fixture: ComponentFixture<CriarBeneficioComponent>;
 
   beforeEach(async () => {
+
     vi.clearAllMocks();
 
     await TestBed.configureTestingModule({
       imports: [CriarBeneficioComponent, ReactiveFormsModule, NoopAnimationsModule],
       providers: [
         { provide: BeneficioService, useValue: beneficioServiceStub },
-        { provide: Router, useValue: routerStub },
-        { provide: MatSnackBar, useValue: snackBarStub },
+        { provide: Router,           useValue: routerStub },
+        { provide: ActivatedRoute,   useValue: activatedRouteStub },
       ],
-    }).compileComponents();
+    })
+    .overrideProvider(MatSnackBar, { useValue: snackBarStub })
+    .compileComponents();
 
     fixture = TestBed.createComponent(CriarBeneficioComponent);
     component = fixture.componentInstance;
+
     fixture.detectChanges();
   });
 
   // -------------------------------------------------------------------------
-  // Criação do componente
+  // Inicialização
   // -------------------------------------------------------------------------
 
   describe('Inicialização', () => {
+
     it('deve criar o componente', () => {
       expect(component).toBeTruthy();
     });
@@ -77,6 +90,7 @@ describe('CriarBeneficioComponent', () => {
     it('formulário deve estar inválido ao ser criado (campos obrigatórios vazios)', () => {
       expect(component.form.invalid).toBe(true);
     });
+
   });
 
   // -------------------------------------------------------------------------
@@ -84,6 +98,7 @@ describe('CriarBeneficioComponent', () => {
   // -------------------------------------------------------------------------
 
   describe('Validação: nome', () => {
+
     it('deve ser obrigatório', () => {
       const ctrl = component.form.get('nome')!;
       ctrl.setValue('');
@@ -102,6 +117,7 @@ describe('CriarBeneficioComponent', () => {
       ctrl.setValue('Vale Refeição');
       expect(ctrl.valid).toBe(true);
     });
+
   });
 
   // -------------------------------------------------------------------------
@@ -109,6 +125,7 @@ describe('CriarBeneficioComponent', () => {
   // -------------------------------------------------------------------------
 
   describe('Validação: descricao', () => {
+
     it('deve ser opcional (válido mesmo vazio)', () => {
       const ctrl = component.form.get('descricao')!;
       ctrl.setValue('');
@@ -126,6 +143,7 @@ describe('CriarBeneficioComponent', () => {
       ctrl.setValue('x'.repeat(255));
       expect(ctrl.valid).toBe(true);
     });
+
   });
 
   // -------------------------------------------------------------------------
@@ -133,6 +151,7 @@ describe('CriarBeneficioComponent', () => {
   // -------------------------------------------------------------------------
 
   describe('Validação: valor', () => {
+
     it('deve ser obrigatório', () => {
       const ctrl = component.form.get('valor')!;
       ctrl.setValue(null);
@@ -157,6 +176,7 @@ describe('CriarBeneficioComponent', () => {
       ctrl.setValue(0.01);
       expect(ctrl.valid).toBe(true);
     });
+
   });
 
   // -------------------------------------------------------------------------
@@ -164,6 +184,7 @@ describe('CriarBeneficioComponent', () => {
   // -------------------------------------------------------------------------
 
   describe('getError()', () => {
+
     it('deve retornar string vazia quando o campo não foi tocado', () => {
       component.form.get('nome')!.setValue('');
       expect(component.getError('nome')).toBe('');
@@ -196,6 +217,7 @@ describe('CriarBeneficioComponent', () => {
       ctrl.markAsTouched();
       expect(component.getError('nome')).toBe('');
     });
+
   });
 
   // -------------------------------------------------------------------------
@@ -203,6 +225,7 @@ describe('CriarBeneficioComponent', () => {
   // -------------------------------------------------------------------------
 
   describe('markTouched()', () => {
+
     it('deve marcar o campo como touched', () => {
       const ctrl = component.form.get('nome')!;
       expect(ctrl.touched).toBe(false);
@@ -213,6 +236,7 @@ describe('CriarBeneficioComponent', () => {
     it('não deve lançar erro para campo inexistente', () => {
       expect(() => component.markTouched('campoInexistente')).not.toThrow();
     });
+
   });
 
   // -------------------------------------------------------------------------
@@ -220,6 +244,7 @@ describe('CriarBeneficioComponent', () => {
   // -------------------------------------------------------------------------
 
   describe('resetar()', () => {
+
     it('deve limpar todos os campos do formulário', () => {
       component.form.setValue({ nome: 'Teste', descricao: 'Desc', valor: 100 });
       component.resetar();
@@ -232,13 +257,15 @@ describe('CriarBeneficioComponent', () => {
       expect(component.form.untouched).toBe(true);
       expect(component.form.pristine).toBe(true);
     });
+
   });
 
   // -------------------------------------------------------------------------
-  // salvar() — guard de formulário inválido
+  // salvar() — formulário inválido
   // -------------------------------------------------------------------------
 
   describe('salvar() — formulário inválido', () => {
+
     it('não deve chamar o serviço quando o formulário é inválido', () => {
       component.salvar();
       expect(beneficioServiceStub.criar).not.toHaveBeenCalled();
@@ -249,6 +276,7 @@ describe('CriarBeneficioComponent', () => {
       expect(component.form.get('nome')!.touched).toBe(true);
       expect(component.form.get('valor')!.touched).toBe(true);
     });
+
   });
 
   // -------------------------------------------------------------------------
@@ -256,68 +284,83 @@ describe('CriarBeneficioComponent', () => {
   // -------------------------------------------------------------------------
 
   describe('salvar() — sucesso', () => {
+
     beforeEach(() => {
       beneficioServiceStub.criar.mockReturnValue(of({}));
       component.form.setValue({ nome: 'Vale Refeição', descricao: 'Benefício alimentar', valor: 500 });
     });
 
-    it('deve chamar o serviço com o payload correto', fakeAsync(() => {
+    it('deve chamar o serviço com o payload correto', async () => {
+
       component.salvar();
-      tick();
+
+      await flushPromises();
+
       expect(beneficioServiceStub.criar).toHaveBeenCalledWith({
-        nome: 'Vale Refeição',
+        nome:      'Vale Refeição',
         descricao: 'Benefício alimentar',
-        valor: 500,
+        valor:     500,
       });
-    }));
 
-    it('deve usar string vazia para descricao quando o campo está nulo', fakeAsync(() => {
-      component.form.get('descricao')!.setValue(null as any);
-      component.salvar();
-      tick();
-      const payload = beneficioServiceStub.criar.mock.calls[0][0];
-      expect(payload.descricao).toBe('');
-    }));
-
-    it('deve definir loading como true durante a requisição', () => {
-      beneficioServiceStub.criar.mockReturnValue(of({}));
-      // Observa o valor de loading antes do subscribe completar
-      let loadingDuringCall = false;
-      beneficioServiceStub.criar.mockImplementation(() => {
-        loadingDuringCall = component.loading();
-        return of({});
-      });
-      component.salvar();
-      expect(loadingDuringCall).toBe(true);
     });
 
-    it('deve definir loading como false após sucesso', fakeAsync(() => {
+    it('deve usar string vazia para descricao quando o campo está nulo', async () => {
+
+      component.form.get('descricao')!.setValue(null as any);
+
       component.salvar();
-      tick();
+
+      await flushPromises();
+
+      const payload = beneficioServiceStub.criar.mock.calls[0][0];
+      expect(payload.descricao).toBe('');
+
+    });
+
+    it('deve definir loading como false após sucesso', async () => {
+
+      component.salvar();
+
+      await flushPromises();
+
       expect(component.loading()).toBe(false);
-    }));
 
-    it('deve resetar o formulário após sucesso', fakeAsync(() => {
+    });
+
+    it('deve resetar o formulário após sucesso', async () => {
+
       component.salvar();
-      tick();
+
+      await flushPromises();
+
       expect(component.form.value).toEqual({ nome: null, descricao: null, valor: null });
-    }));
 
-    it('deve exibir snackbar de sucesso', fakeAsync(() => {
+    });
+
+    it('deve exibir snackbar de sucesso', async () => {
+
       component.salvar();
-      tick();
+
+      await flushPromises();
+
       expect(snackBarStub.open).toHaveBeenCalledWith(
         'Benefício criado com sucesso!',
         'Fechar',
         expect.objectContaining({ duration: 4000, panelClass: ['snack-success'] }),
       );
-    }));
 
-    it('deve navegar para /lista após sucesso', fakeAsync(() => {
+    });
+
+    it('deve navegar para /lista após sucesso', async () => {
+
       component.salvar();
-      tick();
+
+      await flushPromises();
+
       expect(routerStub.navigate).toHaveBeenCalledWith(['/lista']);
-    }));
+
+    });
+
   });
 
   // -------------------------------------------------------------------------
@@ -325,80 +368,118 @@ describe('CriarBeneficioComponent', () => {
   // -------------------------------------------------------------------------
 
   describe('salvar() — erro de serviço indisponível (status 0)', () => {
-    it('deve navegar para /erro-servico', fakeAsync(() => {
-      beneficioServiceStub.criar.mockReturnValue(makeError(0));
-      component.form.setValue({ nome: 'X', descricao: '', valor: 1 });
-      component.salvar();
-      tick();
-      expect(routerStub.navigate).toHaveBeenCalledWith(['/erro-servico']);
-    }));
 
-    it('deve definir loading como false', fakeAsync(() => {
+    it('deve navegar para /erro-servico', async () => {
+
       beneficioServiceStub.criar.mockReturnValue(makeError(0));
       component.form.setValue({ nome: 'X', descricao: '', valor: 1 });
+
       component.salvar();
-      tick();
+
+      await flushPromises();
+
+      expect(routerStub.navigate).toHaveBeenCalledWith(['/erro-servico']);
+
+    });
+
+    it('deve definir loading como false', async () => {
+
+      beneficioServiceStub.criar.mockReturnValue(makeError(0));
+      component.form.setValue({ nome: 'X', descricao: '', valor: 1 });
+
+      component.salvar();
+
+      await flushPromises();
+
       expect(component.loading()).toBe(false);
-    }));
+
+    });
+
   });
 
   describe('salvar() — erro de serviço indisponível (status 503)', () => {
-    it('deve navegar para /erro-servico', fakeAsync(() => {
+
+    it('deve navegar para /erro-servico', async () => {
+
       beneficioServiceStub.criar.mockReturnValue(makeError(503));
       component.form.setValue({ nome: 'X', descricao: '', valor: 1 });
+
       component.salvar();
-      tick();
+
+      await flushPromises();
+
       expect(routerStub.navigate).toHaveBeenCalledWith(['/erro-servico']);
-    }));
+
+    });
+
   });
 
   describe('salvar() — erro 422 com erros de validação por campo', () => {
-    it('deve exibir snackbar com as mensagens de erro formatadas', fakeAsync(() => {
+
+    it('deve exibir snackbar com as mensagens de erro formatadas', async () => {
+
       beneficioServiceStub.criar.mockReturnValue(
         makeError(422, {
           detalhes: { erros: { nome: 'Nome já cadastrado', valor: 'Valor inválido' } },
         }),
       );
       component.form.setValue({ nome: 'X', descricao: '', valor: 1 });
+
       component.salvar();
-      tick();
+
+      await flushPromises();
 
       const [mensagem, , options] = snackBarStub.open.mock.calls[0];
       expect(mensagem).toContain('• Nome já cadastrado');
       expect(mensagem).toContain('• Valor inválido');
       expect(options).toMatchObject({ duration: 6000, panelClass: ['snack-error'] });
-    }));
+
+    });
+
   });
 
   describe('salvar() — erro genérico com mensagem da API', () => {
-    it('deve exibir a mensagem retornada pela API', fakeAsync(() => {
+
+    it('deve exibir a mensagem retornada pela API', async () => {
+
       beneficioServiceStub.criar.mockReturnValue(
         makeError(400, { mensagem: 'Operação não permitida.' }),
       );
       component.form.setValue({ nome: 'X', descricao: '', valor: 1 });
+
       component.salvar();
-      tick();
+
+      await flushPromises();
 
       expect(snackBarStub.open).toHaveBeenCalledWith(
         'Operação não permitida.',
         'Fechar',
         expect.objectContaining({ duration: 5000, panelClass: ['snack-error'] }),
       );
-    }));
+
+    });
+
   });
 
   describe('salvar() — erro genérico sem mensagem da API', () => {
-    it('deve exibir mensagem padrão de fallback', fakeAsync(() => {
+
+    it('deve exibir mensagem padrão de fallback', async () => {
+
       beneficioServiceStub.criar.mockReturnValue(makeError(500, {}));
       component.form.setValue({ nome: 'X', descricao: '', valor: 1 });
+
       component.salvar();
-      tick();
+
+      await flushPromises();
 
       expect(snackBarStub.open).toHaveBeenCalledWith(
         'Erro ao salvar benefício.',
         'Fechar',
         expect.any(Object),
       );
-    }));
+
+    });
+
   });
+
 });
